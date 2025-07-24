@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: cursive, Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        header {
+            background: linear-gradient(45deg, #f1c5e4, #884572, #e4258e);
+            color: white;
+            text-align: center;
+            padding: 48px 16px;
+            width: 120%;
+        }
+
+        header h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+
+       
+
+        header .icon {
+            width: 110px; 
+            height: 110px; 
+            margin-top: 10px;
+            border-radius: 20px;
+            object-fit: cover; 
+        
+        }
+
+        .quiz {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            background: linear-gradient(45deg,  #884572, #e4258e);
+            margin-top: 50px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .b-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .b {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f5f8d9;
+            color: #c4478c;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .b:hover {
+            background-color: #542839;
+        }
+
+        .b.correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .b.incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .next-b {
+            display: none;
+            width: 100%;
+            background-color: rgb(7, 7, 83);
+            color: white;
+        }
+
+        footer {
+            background: linear-gradient(45deg, #f1c5e4, #884572, #e4258e);
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        footer p {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        
+        <p><img src="../physics.jpg" alt="physics Icon" class="icon" ><br></p>
+        <h1>Physics Quiz </h1>
+    </header>
+
+    <div class="quiz">
+        <h1 id="question">Physics Quiz</h1>
+        <div id="answer-buttons" class="b-container"></div>
+        <button id="next-b" class="b next-b">Next</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 BRAINLOOM - All Rights Reserved</p>
+    </footer>
+
+    <script>
+        const questions = [
+            {
+                question: "1. What is the SI unit of force?",
+                answers: [
+                    { text: "Joule", correct: false },
+                    { text: "Newton", correct: true },
+                    { text: "Watt", correct: false },
+                    { text: "Pascal", correct: false },
+                ],
+            },
+            {
+                question: "2. Which of the following describes Newton's First Law of Motion?",
+                answers: [
+                    { text: "For every action, there is an equal and opposite reaction.", correct: false },
+                    { text: "An object remains at rest or in uniform motion unless acted upon by an external force.", correct: true },
+                    { text: "The force acting on an object is equal to its mass times its acceleration.", correct: false },
+                    { text: "Energy cannot be created or destroyed.", correct: false },
+                ],
+            },
+            {
+                question: "3. What is the phenomenon of splitting white light into its constituent colors called?",
+                answers: [
+                    { text: "Reflection", correct: false },
+                    { text: "Refraction", correct: false },
+                    { text: "Dispersion", correct: true },
+                    { text: "Diffraction", correct: false },
+                ],
+            },
+            {
+                question: "4. If a substance has a density of 2 g/cm³ and a volume of 5 cm³, what is its mass?",
+                answers: [
+                    { text: "2 g", correct: false },
+                    { text: "5 g", correct: false },
+                    { text: "10 g", correct: true },
+                    { text: "7 g", correct: false },
+                ],
+            },
+            {
+                question: "5. Which of the following is a scalar quantity?",
+                answers: [
+                    { text: "Velocity", correct: false },
+                    { text: "Force", correct: false },
+                    { text: "Acceleration", correct: false },
+                    { text: "Temperature", correct: true },
+                ],
+            },
+        ];
+
+        const questionElement = document.getElementById("question");
+        const answerButtons = document.getElementById("answer-buttons");
+        const nextButton = document.getElementById("next-b");
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            nextButton.innerHTML = "Next";
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.innerHTML = currentQuestion.question;
+
+            currentQuestion.answers.forEach((answer) => {
+                const button = document.createElement("button");
+                button.innerHTML = answer.text;
+                button.classList.add("b");
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener("click", selectAnswer);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            nextButton.style.display = "none";
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+            Array.from(answerButtons.children).forEach((button) => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+            nextButton.style.display = "block";
+        }
+
+        function showScore() {
+            resetState();
+            questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+            nextButton.innerHTML = "Play Again";
+            nextButton.style.display = "block";
+
+            saveScore(score);
+
+        }
+
+        function handleNextButton() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        nextButton.addEventListener("click", () => {
+            if (currentQuestionIndex < questions.length) {
+                handleNextButton();
+            } else {
+                startQuiz();
+            }
+        });
+
+        function saveScore(score) {
+            // Assuming user session is available, send the score to the backend for the logged-in user
+            const user = 'username'; // This should come from the logged-in user's session or token
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "../database/save_physics_scores.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log('Score saved successfully');
+                } else {
+                    console.error('Error saving score');
+                }
+            };
+            xhr.send("username=" + user + "&score=" + score);
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>

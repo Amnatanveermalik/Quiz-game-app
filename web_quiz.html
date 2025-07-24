@@ -1,0 +1,290 @@
+<?php
+    session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Engineering Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: cursive, Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        header {
+            background: linear-gradient(45deg, #f1c5e4, #884572, #e4258e);
+            color: white;
+            text-align: center;
+            padding: 48px 16px;
+            width: 120%;
+        }
+
+        header h1 {
+            font-size: 48px;
+            margin: 0 ;
+        }
+
+        header .icon {
+            width: 110px; 
+            height: 110px; 
+            margin-top: 10px;
+            border-radius: 20px;
+            object-fit: cover;
+        }
+
+        .quiz {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            background: linear-gradient(45deg,  #884572, #e4258e);
+            margin-top: 50px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .b-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .b{
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f5f8d9;
+            color: #c4478c;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .b:hover {
+            background-color: #542839;
+        }
+
+        .b.correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .b.incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .next-b {
+            display: none;
+            width: 100%;
+            background-color: rgb(7, 7, 83);
+            color: white;
+        }
+
+        footer {
+            background: linear-gradient(45deg, #f1c5e4, #884572, #e4258e);
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        footer p {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <p><img src="../physics.jpg" alt="Physics Icon" class="icon"><br></p>
+        <h1>Web Engineering Quiz</h1>
+    </header>
+
+    <div class="quiz">
+        <h1 id="question">Web Engineering Quiz</h1>
+        <div id="answer-buttons" class="b-container"></div>
+        <button id="next-b" class="b next-b">Next</button>
+    </div>
+    <script>
+        const questions = [
+            {
+                question:"1. Which of the following best defines Web Engineering?",
+                answer: [
+                    {text:"The process of designing desktop applications.",correct: false},
+                    {text:"A systematic approach to the development, deployment, and maintenance of high-quality web applications.",correct: true},
+                    {text:"The study of web servers and hosting services only.",correct: false},
+                    {text:"The development of mobile apps using web technologies.",correct: false},
+                ]
+            },
+            {
+                question:"2. What does the acronym HTTP stand for in web development?",
+                answer: [
+                    {text:" Hypertext Transfer Protocol",correct: true},
+                    {text:"Hyperlink Transmission Path",correct: false},
+                    {text:"High-Tech Transmission Protocol",correct: false},
+                    {text:"Hypertext Transport Package",correct: false},
+                ]
+            },
+            {
+                question:"3. Which of the following is NOT a component of a three-tier web application architecture?",
+                answer: [
+                    {text:"Presentation Layer",correct: false},
+                    {text:"Application Layer",correct: false},
+                    {text:"Database Layer",correct: false},
+                    {text:"Operating System Layer",correct: true},
+                ]
+            },
+            {
+                question:"4. What is the primary purpose of using CSS in web development?",
+                answer: [
+                    {text:"To create the structure of a web page",correct: false},
+                    {text:"To handle the database of a web application",correct: false},
+                    {text:"To define the styling and layout of a web page",correct: true},
+                    {text:"To provide interactivity for the user",correct: false},
+                ]
+            },
+            {
+                question:"5. Which of the following is a commonly used web development framework for building single-page applications?",
+                answer: [
+                    {text:"Angular",correct: true},
+                    {text:"MySQL",correct: false},
+                    {text:"Flask",correct: false},
+                    {text:"Selenium",correct: false},
+                ]
+            },
+        ];
+
+        const questionElement = document.getElementById("question");
+        const answerButtons = document.getElementById("answer-buttons");
+        const nextButton = document.getElementById("next-b");
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            nextButton.innerHTML = "Next";
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            let currentQuestion = questions[currentQuestionIndex];
+            let questionNo = currentQuestionIndex + 1;
+            questionElement.innerHTML = currentQuestion.question;
+
+            currentQuestion.answer.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerHTML = answer.text;
+                button.classList.add("b");
+                answerButtons.appendChild(button);
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener("click", selectAnswer);
+            });
+        }
+
+        function resetState() {
+            nextButton.style.display = "none";
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+            Array.from(answerButtons.children).forEach(button => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+            nextButton.style.display = "block";
+        }
+
+        function showScore() {
+            resetState();
+            questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+            nextButton.innerHTML = "Play Again";
+            nextButton.style.display = "block";
+
+            // Save score to the database
+            saveScore(score);
+        }
+
+        function handleNextButton() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        nextButton.addEventListener("click", () => {
+            if (currentQuestionIndex < questions.length) {
+                handleNextButton();
+            } else {
+                startQuiz();
+            }
+        });
+
+        function saveScore(score) {
+            // Assuming user session is available, send the score to the backend for the logged-in user
+            const user = 'username'; // This should come from the logged-in user's session or token
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "../database/save_web_scores.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log('Score saved successfully');
+                } else {
+                    console.error('Error saving score');
+                }
+            };
+            xhr.send("username=" + user + "&score=" + score);
+        }
+
+        startQuiz();
+    </script>
+
+    <footer>
+        <p>&copy; 2024 BRAINLOOM - All Rights Reserved</p>
+    </footer>
+</body>
+</html>
